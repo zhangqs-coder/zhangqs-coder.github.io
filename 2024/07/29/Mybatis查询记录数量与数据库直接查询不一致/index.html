@@ -16,13 +16,15 @@
   <meta name="author" content="Zhangqs">
   <meta name="keywords" content="">
   
-    <meta property="og:type" content="article">
+    <meta name="description" content="起因​		今天改bug，发现一个查询代码查出来的集合数只有一个，然后将其sql语句拿到数据库客户端查询，发现是多个 问题排查​		通过一层一层的追溯，原来是Mybatis的xml映射不全导致的问题。xml内容类似与下面xml代码 &lt;select id&#x3D;&quot;findUserInfoListForMap&quot;    resultMap&#x3D;&quot;BaseResultMap&quot;&gt;      SELECT  p.n">
+<meta property="og:type" content="article">
 <meta property="og:title" content="Mybatis查询记录数量与数据库直接查询不一致">
 <meta property="og:url" content="http://example.com/2024/07/29/Mybatis%E6%9F%A5%E8%AF%A2%E8%AE%B0%E5%BD%95%E6%95%B0%E9%87%8F%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9B%B4%E6%8E%A5%E6%9F%A5%E8%AF%A2%E4%B8%8D%E4%B8%80%E8%87%B4/index.html">
 <meta property="og:site_name" content="Learn-King">
+<meta property="og:description" content="起因​		今天改bug，发现一个查询代码查出来的集合数只有一个，然后将其sql语句拿到数据库客户端查询，发现是多个 问题排查​		通过一层一层的追溯，原来是Mybatis的xml映射不全导致的问题。xml内容类似与下面xml代码 &lt;select id&#x3D;&quot;findUserInfoListForMap&quot;    resultMap&#x3D;&quot;BaseResultMap&quot;&gt;      SELECT  p.n">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2024-07-29T12:16:54.000Z">
-<meta property="article:modified_time" content="2024-07-29T12:21:15.415Z">
+<meta property="article:modified_time" content="2024-07-29T12:51:41.098Z">
 <meta property="article:author" content="Zhangqs">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="Mybatis">
@@ -264,7 +266,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          0 字
+          219 字
         
       </span>
     
@@ -275,7 +277,7 @@
         
         
         
-          1 分钟
+          2 分钟
         
       </span>
     
@@ -325,13 +327,59 @@
             
               <div class="markdown-body">
                 
-                
+                <h1 id="起因"><a href="#起因" class="headerlink" title="起因"></a>起因</h1><p>​		今天改bug，发现一个查询代码查出来的集合数只有一个，然后将其sql语句拿到数据库客户端查询，发现是多个</p>
+<h1 id="问题排查"><a href="#问题排查" class="headerlink" title="问题排查"></a>问题排查</h1><p>​		通过一层一层的追溯，原来是Mybatis的xml映射不全导致的问题。xml内容类似与下面xml代码</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-markup" data-language="markup"><code class="language-markup"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>select</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>findUserInfoListForMap<span class="token punctuation">"</span></span>    <span class="token attr-name">resultMap</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>BaseResultMap<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+     SELECT  p.name, u.u_name,u.company,u.proComany,u.mobile,u.email, r.money
+     FROM user u
+     LEFT JOIN raiseentry r on r.userId=u.id
+     LEFT JOIN project p on r.sourceId=p.projectId...
+ <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>select</span><span class="token punctuation">></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+
+<p>​	 	经细心验证，BaseResultMap中的属性均有配全，但是该语句执行时返回的<strong>记录条数</strong>与直接在数据库中查询的<strong>不一致</strong>。</p>
+<figure><div class="code-wrapper"><pre class="language-none"><code class="language-none">     但是改成如下语句后，（多了个查询字段u.id）发现查询的结果正常了
+</code></pre></div></figure>
+<figure><div class="code-wrapper"><pre class="line-numbers language-markup" data-language="markup"><code class="language-markup"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>select</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>findUserInfoListForMap<span class="token punctuation">"</span></span>    <span class="token attr-name">resultMap</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>BaseResultMap<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+     SELECT u.id, p.name, u.u_name,u.company,u.proComany,u.mobile,u.email, r.money
+     FROM user u
+     LEFT JOIN raiseentry r on r.userId=u.id
+     LEFT JOIN project p on r.sourceId=p.projectId...
+ <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>select</span><span class="token punctuation">></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><ol>
+<li>可以使用select * from table 语句防止遗漏</li>
+<li>以u.id，p.name，u.u_name这种形式一一匹配resultMap中的字段</li>
+<li>用resultType属性自动映射自动将表中的字段与类中的属性进行关联映射(单表)</li>
+<li>将需要的字段封装成DTO对象，在xml中使用resultType对应</li>
+</ol>
+
                 
               </div>
             
             <hr/>
             <div>
               <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BC%96%E7%A8%8B%E5%AD%A6%E4%B9%A0/" class="category-chain-item">编程学习</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
   
   
     <div class="post-meta">
