@@ -392,7 +392,7 @@
         ac<span class="token punctuation">.</span><span class="token function">publishEvent</span><span class="token punctuation">(</span>ele<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
 
 <p>​	上面的代码通过ApplicationContext对象的publishEvent主动触发该事件。运行上面的程序将看到如下执行结果。</p>
-<p>1 容器本身事件: org.springframework.context.event.ContextRefreshedEvent[source&#x3D;org.springframework.context.support.ClassPathXmlApplicationContext@141b571: startup date [Fri Sep 13 10:16:01 CST 2013]; root of context hierarchy]<br>2 需要发送的邮件的接收地址:<a href="mailto:&#x31;&#x32;&#51;&#x34;&#53;&#x36;&#x40;&#x31;&#54;&#51;&#x2e;&#x63;&#x6f;&#109;">&#x31;&#x32;&#51;&#x34;&#53;&#x36;&#x40;&#x31;&#54;&#51;&#x2e;&#x63;&#x6f;&#109;</a><br>3 需要发送邮件的邮件正文:Hello World</p>
+<p>1 容器本身事件: org.springframework.context.event.ContextRefreshedEvent[source&#x3D;org.springframework.context.support.ClassPathXmlApplicationContext@141b571: startup date [Fri Sep 13 10:16:01 CST 2013]; root of context hierarchy]<br>2 需要发送的邮件的接收地址:<a href="mailto:&#x31;&#x32;&#x33;&#x34;&#x35;&#54;&#x40;&#x31;&#54;&#51;&#46;&#99;&#111;&#109;">&#x31;&#x32;&#x33;&#x34;&#x35;&#54;&#x40;&#x31;&#54;&#51;&#46;&#99;&#111;&#109;</a><br>3 需要发送邮件的邮件正文:Hello World</p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>​	<strong>解耦业务逻辑</strong>：利用ApplicationContext 事件机制,可以解除代码耦合。</p>
 <p>​	<strong>异步处理</strong>：某些操作可以通过事件机制异步处理，提升系统响应速度。</p>
 <p>​	<strong>扩展性</strong>：可以很容易地添加新的事件处理器，而不会影响现有代码。</p>
